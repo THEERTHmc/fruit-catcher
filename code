@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fruit Catcher Game</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f3f3f3;
+    }
+    
+    #game-container {
+        position: relative;
+        width: 400px;
+        height: 500px;
+        border: 2px solid #333;
+    }
+    
+    #basket {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 50px;
+        background-color: #007bff;
+    }
+    
+    .fruit {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        background-size: cover;
+    }
+</style>
+</head>
+<body>
+<div id="game-container">
+    <div id="basket"></div>
+</div>
+<script>
+    const gameContainer = document.getElementById('game-container');
+    const basket = document.getElementById('basket');
+    let score = 0;
+
+    function getRandomPosition() {
+        const x = Math.floor(Math.random() * (gameContainer.offsetWidth - 50));
+        return { x, y: -50 };
+    }
+
+    function createFruit() {
+        const fruits = ['apple', 'banana', 'orange'];
+        const randomFruit = fruits[Math.floor(Math.random() * fruits.length)];
+        const fruit = document.createElement('div');
+        fruit.className = 'fruit';
+        fruit.style.backgroundImage = `url('${randomFruit}.png')`;
+        const { x, y } = getRandomPosition();
+        fruit.style.left = `${x}px`;
+        fruit.style.top = `${y}px`;
+        gameContainer.appendChild(fruit);
+
+        const fallInterval = setInterval(() => {
+            const fruitRect = fruit.getBoundingClientRect();
+            const basketRect = basket.getBoundingClientRect();
+            if (fruitRect.bottom >= basketRect.top && fruitRect.right >= basketRect.left && fruitRect.left <= basketRect.right) {
+                clearInterval(fallInterval);
+                fruit.remove();
+                score++;
+                updateScore();
+            } else if (fruitRect.bottom >= gameContainer.offsetHeight) {
+                clearInterval(fallInterval);
+                fruit.remove();
+            } else {
+                fruit.style.top = `${fruit.offsetTop + 5}px`;
+            }
+        }, 20);
+    }
+
+    function updateScore() {
+        document.getElementById('score').innerText = `Score: ${score}`;
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'ArrowLeft' && basket.offsetLeft > 0) {
+            basket.style.left = `${basket.offsetLeft - 10}px`;
+        } else if (event.key === 'ArrowRight' && basket.offsetLeft + basket.offsetWidth < gameContainer.offsetWidth) {
+            basket.style.left = `${basket.offsetLeft + 10}px`;
+        }
+    });
+
+    setInterval(createFruit, 2000);
+</script>
+</body>
+</html>
